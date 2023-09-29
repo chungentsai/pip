@@ -61,7 +61,7 @@ end
 function f(A::Array{Float64, 2}, y::Array{Int64, 1}, λ::Array{Float64, 1})
     idx = y.>0
     ip = A[idx,:] * λ
-    return sum(ip[idx,:] .- y[idx,:] .* log.(ip[idx,:]))
+    return sum(ip .- y[idx,:] .* log.(ip))
 end
 
 
