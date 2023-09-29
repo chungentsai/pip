@@ -227,10 +227,15 @@ function SPDHG(
     n_iter::Int64 = n_epoch * n
     period::Int64 = n ÷ n_rate
     
-    λ = x_to_λ(ones(Float64, d))
+    λ = x_to_λ(ones(Float64, d)/d)
     z = zeros(Float64, n) # dual variable
     z_bar = zeros(Float64, n)
-    τ = 0.99 / norm(A)
+
+    maxnorm = 0
+    for i = 1:n
+        maxnorm = max(maxnorm, norm(view(A, i, :)))
+    end
+    τ = 0.99 / (n * maxnorm)
     
     @timeit to "iteration" begin
         idx = rand(1:n, n_iter)

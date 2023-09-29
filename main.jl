@@ -41,7 +41,7 @@ Kellyf(x) = Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EM, BPG, EMD_with_line_search, FW] # PDHG too slow
+const batch_algs = [EM, BPG, EMD, FW] # PDHG too slow
 const stochastic_algs = [SPDHG, SSB, SLBOMD, LB_SDA, d_sample_LB_SDA]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
