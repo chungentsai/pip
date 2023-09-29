@@ -233,7 +233,7 @@ function SPDHG(
     τ = 0.99 / norm(A)
     
     @timeit to "iteration" begin
-        idx = sample(1:n, Weights(P), n_iter)
+        idx = rand(1:n, n_iter)
     end
 
     direction = transpose(A) * z_bar

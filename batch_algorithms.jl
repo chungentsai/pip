@@ -121,7 +121,7 @@ function FW(
 end
 
 
-function EMD_with_line_search(
+function EMD(
     n_epoch::Int64, 
     n_rate::Int64, 
     verbose
