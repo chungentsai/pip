@@ -13,27 +13,28 @@ end
 
 
 function sensing_matrix(n::Int64, d::Int64, p::Float64)
-    n_zero = floor(Int, d * p)
-    A = ones(Float64, n, d) / (d - n_zero)
-    for i in 1:n
-        idx = sample(1:d, n_zero, replace = false)
-        A[i, idx] .= 0
-    end
-    
-    #A = zeros(Float64, n, d)
-    #λminus = -((1-p)/p)^0.5
-    #λplus = (p/(1-p))^0.5
-    #@inbounds for i in 1:n
-    #    @inbounds for j in 1:d
-    #        if rand() <= p
-    #            A[i, j] = λminus
-    #        else
-    #            A[i, j] = λplus
-    #        end
-    #    end
+    #n_zero = floor(Int, d * p)
+    #A = ones(Float64, n, d) / (d - n_zero)
+    #for i in 1:n
+    #    idx = sample(1:d, n_zero, replace = false)
+    #    A[i, idx] .= 0
     #end
-    #A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
-    #A = max.(A, zeros(Float64, n, d))
+    
+    A = zeros(Float64, n, d)
+    λminus = -((1-p)/p)^0.5
+    λplus = (p/(1-p))^0.5
+    @inbounds for i in 1:n
+        @inbounds for j in 1:d
+            if rand() <= p
+                A[i, j] = λminus
+            else
+                A[i, j] = λplus
+            end
+        end
+    end
+    A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
+    A = max.(A, zeros(Float64, n, d))
+    
     return A
 end
 
