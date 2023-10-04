@@ -78,7 +78,7 @@ def main():
 
     plt.figure(1)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    #algs = ["BPG", "QEM", "SQSB", "Frank-Wolfe", "SQLBOMD", "d-sample LB-SDA", "1-sample LB-SDA"]
+    algs = ["BPG", "Frank-Wolfe", "EM", "SLBOMD", "SSB", "d-sample LB-SDA", "1-sample LB-SDA", "EMD", "SPDHG"]
     for alg_name in algs:
         plt.semilogy(results[alg_name]["n_epoch"], results[alg_name]["opt_error"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Number of epochs")
@@ -86,53 +86,53 @@ def main():
     plt.xlim((0, 200))
     #plt.ylim([3e3, 5e3])
     plt.legend()
-    plt.savefig(directory + "epoch-error.png", dpi=300)
+    plt.savefig(directory + "epoch-error.png", dpi=300, bbox_inches="tight")
 
     plt.figure(2)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    #algs = ["1-sample LB-SDA", "d-sample LB-SDA", "SQLBOMD", "Frank-Wolfe", "SQSB", "QEM", "BPG"]
+    algs = ["BPG", "Frank-Wolfe", "EM", "SSB", "SLBOMD", "SPDHG", "d-sample LB-SDA", "EMD", "1-sample LB-SDA"]
     for alg_name in algs:
         plt.semilogy(results[alg_name]["n_epoch"], results[alg_name]["normalized_l2"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Number of epochs")
-    plt.ylabel("Normalized L2 distance")
+    plt.ylabel("Normalized estimation error")
     plt.xlim((0, 200))
     #plt.ylim([1e-1, 1e1])
     plt.legend()
-    plt.savefig(directory + "epoch-distance.png", dpi=300)
+    plt.savefig(directory + "epoch-distance.png", dpi=300, bbox_inches="tight")
 
     plt.figure(3)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    #algs = ["BPG", "SQSB", "SQLBOMD", "QEM", "1-sample LB-SDA", "d-sample LB-SDA", "Frank-Wolfe"]
+    algs = ["BPG", "SLBOMD", "SSB", "EM", "d-sample LB-SDA", "SPDHG","Frank-Wolfe", "1-sample LB-SDA", "EMD"]
     for alg_name in algs:
         plt.loglog(results[alg_name]["elapsed_time"], results[alg_name]["opt_error"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Elapsed time")
     plt.ylabel("Approximate optimization error")
-    #plt.ylim([3e3, 5e3])
+    plt.ylim([1, 2e3])
     plt.legend()
-    plt.savefig(directory + "time-error.png", dpi=300)
+    plt.savefig(directory + "time-error.png", dpi=300, bbox_inches="tight")
 
     plt.figure(4)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    #algs = ["d-sample LB-SDA", "Frank-Wolfe", "1-sample LB-SDA", "QEM", "SQLBOMD", "SQSB", "BPG"]
+    algs = ["BPG", "SLBOMD", "SSB", "EM", "SPDHG", "d-sample LB-SDA", "Frank-Wolfe", "1-sample LB-SDA", "EMD"]
     for alg_name in algs:
         plt.loglog(results[alg_name]["elapsed_time"], results[alg_name]["normalized_l2"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Elapsed time")
-    plt.ylabel("Normalized L2 distance")
+    plt.ylabel("Normalized estimation error")
     #plt.ylim([1e-1, 1e1])
     plt.legend()
-    plt.savefig(directory + "time-distance.png", dpi=300)
+    plt.savefig(directory + "time-distance.png", dpi=300, bbox_inches="tight")
 
     plt.figure(5)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    #algs = ["d-sample LB-SDA", "Frank-Wolfe", "1-sample LB-SDA", "QEM", "SQLBOMD", "SQSB", "BPG"]
+    algs = ["d-sample LB-SDA", "1-sample LB-SDA", "EMD"]
     for alg_name in algs:
-        plt.plot(results[alg_name]["signal"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
+        plt.plot(results[alg_name]["signal"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.2, linewidth=1, color=results[alg_name]["linecolor"])
     plt.plot(true_signal, label="true", linewidth=1, color='tab:red')
     plt.xlabel("Index")
     plt.ylabel("Intensity")
     #plt.ylim([0, 15000])
     plt.legend()
-    plt.savefig(directory + "signal.png", dpi=300)
+    plt.savefig(directory + "signal.png", dpi=300, bbox_inches="tight")
 
     #plt.show()
 

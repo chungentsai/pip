@@ -21,7 +21,7 @@ reset_timer!(to)
 
 # setup
 const d = 100          # dimension
-const n = 100000        # number of measurements
+const n = 1000000        # number of measurements
 const p = 1/2
 const λ_true = true_parameters(d) # Poisson parameters
 print_signal(io, λ_true)
@@ -41,8 +41,8 @@ Kellyf(x) = Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EM, BPG, EMD, FW] # PDHG too slow
-const stochastic_algs = [SPDHG, SSB, SLBOMD, LB_SDA, d_sample_LB_SDA]
+const batch_algs = [EMD, FW] # PDHG too slow
+const stochastic_algs = [d_sample_LB_SDA]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
 const N_EPOCH_B = 600

@@ -185,10 +185,11 @@ function d_sample_LB_SDA(
     @inbounds for iter = 1:n_iter
         @timeit to "iteration" begin
             grad::Vector{Float64} = zeros(Float64, d)
-            @inbounds for j = 1:batch_size
-                grad += - view(B, idx[j, iter], :) / dot(view(B, idx[j, iter], :), x)
-            end
-            grad /= batch_size
+            grad = vec( sum(- view(B, idx[:, iter], :) ./ (view(B, idx[:,iter], :) * x), dims = 1) / batch_size )
+            #@inbounds for j = 1:batch_size
+            #    grad += - view(B, idx[j, iter], :) / dot(view(B, idx[j, iter], :), x)
+            #end
+            #grad /= batch_size
             ∑grad += grad
 
             ∑dual_norm2 += dual_norm2(x, grad + α(x, grad) * ones(Float64, d))
