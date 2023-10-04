@@ -20,10 +20,11 @@ const to = TimerOutput();
 reset_timer!(to)
 
 # setup
-const d = 100          # dimension
+const w = 2^4         # width
+const d = w*w
 const n = 1000000        # number of measurements
 const p = 1/2
-const λ_true = true_parameters(d) # Poisson parameters
+const λ_true = true_parameters(w) # Poisson parameters
 print_signal(io, λ_true)
 const A = sensing_matrix(n, d, p) # sensing matrix
 const y = generate_observations(A, λ_true)
@@ -41,8 +42,8 @@ Kellyf(x) = Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EMD, FW] # PDHG too slow
-const stochastic_algs = [d_sample_LB_SDA]
+const batch_algs = [EMD, FW, EM, BPG] # PDHG too slow
+const stochastic_algs = [LB_SDA, d_sample_LB_SDA, SSB, SLBOMD, SPDHG]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
 const N_EPOCH_B = 600
@@ -67,4 +68,4 @@ finally
 end
 
 
-#myPlot(filename)
+myPlot(filename)

@@ -105,7 +105,7 @@ def main():
     algs = ["BPG", "SLBOMD", "SSB", "EM", "d-sample LB-SDA", "SPDHG","Frank-Wolfe", "1-sample LB-SDA", "EMD"]
     for alg_name in algs:
         plt.loglog(results[alg_name]["elapsed_time"], results[alg_name]["opt_error"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
-    plt.xlabel("Elapsed time")
+    plt.xlabel("Elapsed time (seconds)")
     plt.ylabel("Approximate optimization error")
     plt.ylim([1, 2e3])
     plt.legend()
@@ -116,7 +116,7 @@ def main():
     algs = ["BPG", "SLBOMD", "SSB", "EM", "SPDHG", "d-sample LB-SDA", "Frank-Wolfe", "1-sample LB-SDA", "EMD"]
     for alg_name in algs:
         plt.loglog(results[alg_name]["elapsed_time"], results[alg_name]["normalized_l2"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
-    plt.xlabel("Elapsed time")
+    plt.xlabel("Elapsed time (seconds)")
     plt.ylabel("Normalized estimation error")
     #plt.ylim([1e-1, 1e1])
     plt.legend()

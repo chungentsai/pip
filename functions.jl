@@ -1,13 +1,17 @@
 using Distributions
 using StatsBase
 using LinearAlgebra
+using ImagePhantoms
 
 
-function true_parameters(d::Int64)
-    λ = ones(Float64, d) * 1000
-    λ[1*d÷5 : 1*d÷4] .= 10000
-    λ[4*d÷9 : 5*d÷9] .= 10000
-    λ[3*d÷4 : 4*d÷5] .= 10000
+function true_parameters(w::Int64)
+    image = ImagePhantoms.shepp_logan(w) * 1000
+    λ::Vector{Float64} = reshape(image, w*w)
+
+    #λ = ones(Float64, d) * 1000
+    #λ[1*d÷5 : 1*d÷4] .= 10000
+    #λ[4*d÷9 : 5*d÷9] .= 10000
+    #λ[3*d÷4 : 4*d÷5] .= 10000
     return λ
 end
 
