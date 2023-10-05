@@ -20,9 +20,9 @@ const to = TimerOutput();
 reset_timer!(to)
 
 # setup
-const w = 2^4         # width
+const w = 2^7         # width
 const d = w*w
-const n = 1000000        # number of measurements
+const n = d        # number of measurements
 const p = 1/2
 const λ_true = true_parameters(w) # Poisson parameters
 print_signal(io, λ_true)
@@ -43,7 +43,7 @@ x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
 const batch_algs = [EMD, FW, EM, BPG] # PDHG too slow
-const stochastic_algs = [LB_SDA, d_sample_LB_SDA, SSB, SLBOMD, SPDHG]
+const stochastic_algs = [SSB, SLBOMD, SPDHG, LB_SDA, d_sample_LB_SDA]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
 const N_EPOCH_B = 600

@@ -3,6 +3,8 @@ from math import *
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import cycle
+import numpy as np
+
 
 markers = [
      "+", "1", "x", "*", "P", "v", "^", "<", ">", "s"
@@ -78,7 +80,7 @@ def main():
 
     plt.figure(1)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    algs = ["BPG", "Frank-Wolfe", "EM", "SLBOMD", "SSB", "d-sample LB-SDA", "1-sample LB-SDA", "EMD", "SPDHG"]
+    algs = ["BPG", "Frank-Wolfe", "EM", "SLBOMD", "d-sample LB-SDA", "1-sample LB-SDA", "SSB", "EMD", "SPDHG"]
     for alg_name in algs:
         plt.semilogy(results[alg_name]["n_epoch"], results[alg_name]["opt_error"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Number of epochs")
@@ -90,7 +92,7 @@ def main():
 
     plt.figure(2)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    algs = ["BPG", "Frank-Wolfe", "EM", "SSB", "SLBOMD", "SPDHG", "d-sample LB-SDA", "EMD", "1-sample LB-SDA"]
+    algs = ["BPG", "Frank-Wolfe", "EM", "SLBOMD", "SSB", "d-sample LB-SDA", "1-sample LB-SDA", "EMD", "SPDHG"]
     for alg_name in algs:
         plt.semilogy(results[alg_name]["n_epoch"], results[alg_name]["normalized_l2"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Number of epochs")
@@ -102,7 +104,7 @@ def main():
 
     plt.figure(3)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    algs = ["BPG", "SLBOMD", "SSB", "EM", "d-sample LB-SDA", "SPDHG","Frank-Wolfe", "1-sample LB-SDA", "EMD"]
+    algs = ["BPG", "SLBOMD", "SSB", "Frank-Wolfe", "EM", "d-sample LB-SDA", "1-sample LB-SDA", "SPDHG", "EMD"]
     for alg_name in algs:
         plt.loglog(results[alg_name]["elapsed_time"], results[alg_name]["opt_error"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Elapsed time (seconds)")
@@ -113,7 +115,7 @@ def main():
 
     plt.figure(4)
     plt.grid(True, which="both", linestyle='--', alpha=0.4)
-    algs = ["BPG", "SLBOMD", "SSB", "EM", "SPDHG", "d-sample LB-SDA", "Frank-Wolfe", "1-sample LB-SDA", "EMD"]
+    algs = ["BPG", "SLBOMD", "SSB", "Frank-Wolfe", "EM", "SPDHG", "d-sample LB-SDA", "1-sample LB-SDA", "EMD"]
     for alg_name in algs:
         plt.loglog(results[alg_name]["elapsed_time"], results[alg_name]["normalized_l2"], label=alg_name, marker=results[alg_name]["marker"], markevery=0.1, linewidth=1, color=results[alg_name]["linecolor"])
     plt.xlabel("Elapsed time (seconds)")
@@ -135,6 +137,13 @@ def main():
     plt.savefig(directory + "signal.png", dpi=300, bbox_inches="tight")
 
     #plt.show()
+    plt.figure(6)
+    
+    img = np.reshape(true_signal, (8, 8))
+    #plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+    #plt.imshow(img, interpolation='nearest')
+    plt.savefig(directory + "image.png", dpi=300, bbox_inches="tight")
+    
 
 if __name__ == "__main__":
     main()
