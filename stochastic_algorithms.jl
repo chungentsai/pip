@@ -6,12 +6,7 @@ using LinearAlgebra
 using StatsBase
 
 
-function SSB(
-    n_epoch::Int64, 
-    n_rate::Int64,
-    verbose
-    )
-    # Y.-H. Li, Online Positron Emission Tomography By Online Portfolio Selection, 2020 (https://ieeexplore.ieee.org/abstract/document/9053230)
+function SSB(n_epoch::Int64, n_rate::Int64)
     name = "SSB"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -34,17 +29,15 @@ function SSB(
  
     @inbounds for iter = 1:n_iter
         @timeit to "iteration" begin
-            # update
             grad = - view(B, idx[iter], :) / dot(view(B, idx[iter], :), x)
             x = ( 1.0 - η ) * x -  η * x .* grad
-            
             x_bar = (iter * x_bar + x) / (iter + 1.0)
         end
 
         if mod(iter, period) == 0
             λ = x_to_λ(x_bar)
             update_output!(output, iter÷period, iter/n, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-            print_output(io, output, iter÷period, verbose)
+            print_output(io, output, iter÷period, VERBOSE)
         end
     end
 
@@ -54,13 +47,7 @@ function SSB(
 end
 
 
-function SLBOMD(
-    n_epoch::Int64, 
-    n_rate::Int64, 
-    verbose
-    )
-
-    # C.-E. Tsai, H.-C. Cheng, and Y.-H. Li, Faster stochastic first-order method for maximum-likelihood quantum state tomography, 2022 (https://arxiv.org/abs/2211.12880)
+function SLBOMD(n_epoch::Int64, n_rate::Int64)
     name = "SLBOMD"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -82,18 +69,16 @@ function SLBOMD(
  
     @inbounds for iter = 1:n_iter
         @timeit to "iteration" begin
-            # update
             grad = - view(B, idx[iter], :) / dot(view(B, idx[iter], :), x)
             x_half = 1 ./ (1 ./ x + η * grad)
             x = log_barrier_projection(x_half, 1e-5)
-
             x_bar = (iter * x_bar + x) / (iter + 1.0)
         end
 
         if mod(iter, period) == 0
             λ = x_to_λ(x_bar)
             update_output!(output, iter÷period, iter/n, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-            print_output(io, output, iter÷period, verbose)
+            print_output(io, output, iter÷period, VERBOSE)
         end
     end
 
@@ -103,12 +88,7 @@ function SLBOMD(
 end
 
 
-function LB_SDA(
-    n_epoch::Int64, 
-    n_rate::Int64,
-    verbose
-    )
-    # working
+function LB_SDA(n_epoch::Int64, n_rate::Int64)
     name = "1-sample LB-SDA"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -120,7 +100,7 @@ function LB_SDA(
     x_bar::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x_bar)
     ∑grad::Vector{Float64} = zeros(Float64, d)
-    ∑dual_norm2 = 0.0
+    ∑dual_norm2::Float64 = 0.0
     
     n_iter::Int64 = n_epoch * n
     period::Int64 = n ÷ n_rate
@@ -145,7 +125,7 @@ function LB_SDA(
         if mod(iter, period) == 0
             λ = x_to_λ(x_bar)
             update_output!(output, iter÷period, iter/n, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-            print_output(io, output, iter÷period, verbose)
+            print_output(io, output, iter÷period, VERBOSE)
         end
     end
 
@@ -155,12 +135,7 @@ function LB_SDA(
 end
 
 
-function d_sample_LB_SDA(
-    n_epoch::Int64, 
-    n_rate::Int64, 
-    verbose
-    )
-    # working
+function d_sample_LB_SDA(n_epoch::Int64, n_rate::Int64)
     name = "d-sample LB-SDA"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -172,8 +147,8 @@ function d_sample_LB_SDA(
     x_bar::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x_bar)
     ∑grad::Vector{Float64} = zeros(Float64, d)
-    ∑dual_norm2 = 0.0
-    batch_size = d
+    ∑dual_norm2::Float64 = 0.0
+    batch_size::Int64 = d
     
     n_iter::Int64 = n_epoch * (n ÷ batch_size)
     period::Int64 = (n ÷ batch_size) ÷ n_rate
@@ -186,10 +161,6 @@ function d_sample_LB_SDA(
         @timeit to "iteration" begin
             grad::Vector{Float64} = zeros(Float64, d)
             grad = vec( sum(- view(B, idx[:, iter], :) ./ (view(B, idx[:,iter], :) * x), dims = 1) / batch_size )
-            #@inbounds for j = 1:batch_size
-            #    grad += - view(B, idx[j, iter], :) / dot(view(B, idx[j, iter], :), x)
-            #end
-            #grad /= batch_size
             ∑grad += grad
 
             ∑dual_norm2 += dual_norm2(x, grad + α(x, grad) * ones(Float64, d))
@@ -202,7 +173,7 @@ function d_sample_LB_SDA(
         if mod(iter, period) == 0
             λ = x_to_λ(x_bar)
             update_output!(output, iter÷period, iter/(n÷batch_size), TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-            print_output(io, output, iter÷period, verbose)
+            print_output(io, output, iter÷period, VERBOSE)
         end
     end
 
@@ -212,12 +183,7 @@ function d_sample_LB_SDA(
 end
 
 
-function SPDHG(
-    n_epoch::Int64, 
-    n_rate::Int64, 
-    verbose
-    )
-
+function SPDHG(n_epoch::Int64, n_rate::Int64)
     name = "SPDHG"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -265,7 +231,7 @@ function SPDHG(
 
         if mod(iter, period) == 0
             update_output!(output, iter÷period, iter/n, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-            print_output(io, output, iter÷period, verbose)
+            print_output(io, output, iter÷period, VERBOSE)
         end
     end
 

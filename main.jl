@@ -1,28 +1,29 @@
 include("./myplot.jl")
+include("./functions.jl")
+include("./utils.jl")
+include("./batch_algorithms.jl")
+include("./stochastic_algorithms.jl")
+
 
 using MKL
 using TimerOutputs;
 using Random
 using Dates
 
-include("./functions.jl")
-include("./utils.jl")
-include("./batch_algorithms.jl")
-include("./stochastic_algorithms.jl")
 
 BLAS.set_num_threads(8);
+
 
 mkpath("./records")
 const filename = "./records/" * Dates.format(now(), "yyyy-mm-dd-HH-MM-SS")
 const io       = open(filename, "a")
-
 const to = TimerOutput();
 reset_timer!(to)
 
 # setup
-const w = 2^7         # width
-const d = w*w
-const n = d        # number of measurements
+const w = 2^3      # width
+const d = w*w      # dimension
+const n = 10000    # number of measurements
 const p = 1/2
 const λ_true = true_parameters(w) # Poisson parameters
 print_signal(io, λ_true)
@@ -42,14 +43,14 @@ Kellyf(x) = Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EMD, FW, EM, BPG] # PDHG too slow
+const batch_algs = [EMD, FW, EM, BPG]
 const stochastic_algs = [SSB, SLBOMD, SPDHG, LB_SDA, d_sample_LB_SDA]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
 const N_EPOCH_B = 600
 const N_RATE_B = 1
 const VERBOSE = false
-run_alg(alg, n_epoch, n_rate) = alg(n_epoch, n_rate, VERBOSE)
+run_alg(alg, n_epoch, n_rate) = alg(n_epoch, n_rate)
 
 try
     global results = Dict()

@@ -5,12 +5,7 @@ using Printf
 using LinearAlgebra
 
 
-function EM(
-    n_epoch::Int64, 
-    n_rate::Int64, 
-    verbose
-    )
-    # Thomas M. Cover, An algorithm for maximizing expected log investment return (https://ieeexplore.ieee.org/abstract/document/1056869?casa_token=y0cA70bABs0AAAAA:zpsP7RfwrwwlhCno5liSw3OU1Fha6yFDdJk9UDvLCSAMnC0teguSlZx31ILbUc1SoVk0bep2yw)
+function EM(n_epoch::Int64, n_rate::Int64)
     name = "EM"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -21,7 +16,6 @@ function EM(
     λ::Vector{Float64} = x_to_λ(x)
 
     @inbounds for t = 1: n_epoch
-        # update iterate
         @timeit to "iteration" begin
             grad = ∇Kellyf(x)
             x = x .* -grad
@@ -29,7 +23,7 @@ function EM(
 
         λ = x_to_λ(x)
         update_output!(output, t, t, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-        print_output(io, output, t, verbose)
+        print_output(io, output, t, VERBOSE)
     end
 
     print_signal(io, λ)
@@ -38,13 +32,7 @@ function EM(
 end
 
 
-function BPG(
-    n_epoch::Int64, 
-    n_rate::Int64, 
-    verbose
-    )
-    # Heinz H. Bauschke, Jérôme Bolte, Marc Teboulle, A Descent Lemma Beyond Lipschitz Gradient Continuity: First-Order Methods Revisited and Applications, 2017 (https://pubsonline.informs.org/doi/abs/10.1287/moor.2016.0817)
-
+function BPG(n_epoch::Int64, n_rate::Int64)
     name = "BPG"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -53,12 +41,10 @@ function BPG(
 
     x::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x)
-    η = 1
+    η::Float64 = 1
 
     @inbounds for t = 1: n_epoch
-        # update iterate
-        @timeit to "iteration" begin        
-            # update
+        @timeit to "iteration" begin
             grad = ∇Kellyf(x)
             x_half = 1 ./ (1 ./ x + η * grad)
             x = log_barrier_projection(x_half, 1e-5)
@@ -66,7 +52,7 @@ function BPG(
 
         λ = x_to_λ(x)
         update_output!(output, t, t, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-        print_output(io, output, t, verbose)
+        print_output(io, output, t, VERBOSE)
     end
 
     print_signal(io, λ)
@@ -75,12 +61,7 @@ function BPG(
 end
 
 
-function FW(
-    n_epoch::Int64, 
-    n_rate::Int64, 
-    verbose
-    )
-    # Renbo Zhao and Robert M. Freund, Analysis of the Frank–Wolfe method for convex composite optimization involving a logarithmically-homogeneous barrier, 2023 (https://link.springer.com/article/10.1007/s10107-022-01820-9)
+function FW(n_epoch::Int64, n_rate::Int64)
     name = "Frank-Wolfe"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -89,11 +70,9 @@ function FW(
 
     x::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x)
-    pmin = minimum(P[P.>0])
+    pmin::Float64 = minimum(P[P.>0])
     
     @inbounds for t = 1: n_epoch
-
-        # update iterate
         @timeit to "iteration" begin
             invBx = 1 ./ (B * x) 
             grad = P .* -invBx / pmin # ∇_y f(Bx), n×1
@@ -112,7 +91,7 @@ function FW(
 
         λ = x_to_λ(x)
         update_output!(output, t, t, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-        print_output(io, output, t, verbose)
+        print_output(io, output, t, VERBOSE)
     end
 
     print_signal(io, λ)
@@ -121,12 +100,7 @@ function FW(
 end
 
 
-function EMD(
-    n_epoch::Int64, 
-    n_rate::Int64, 
-    verbose
-    )
-
+function EMD(n_epoch::Int64, n_rate::Int64)
     name = "EMD"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
@@ -135,12 +109,11 @@ function EMD(
 
     x::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x)
-    α0 = 10
-    r = 0.5
-    τ = 0.8
+    α0::Float64 = 10
+    r::Float64 = 0.5
+    τ::Float64 = 0.8
 
     @inbounds for t = 1: n_epoch
-        # update iterate
         @timeit to "iteration" begin
             grad = ∇Kellyf(x)
             
@@ -158,7 +131,7 @@ function EMD(
 
         λ = x_to_λ(x)
         update_output!(output, t, t, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-        print_output(io, output, t, verbose)
+        print_output(io, output, t, VERBOSE)
     end
 
     print_signal(io, λ)
@@ -167,11 +140,7 @@ function EMD(
 end
 
 
-function PDHG(
-    n_epoch::Int64, 
-    n_rate::Int64,
-    verbose
-    )
+function PDHG(n_epoch::Int64, n_rate::Int64)
 
     name = "PDHG"
     println(name * " starts.")
@@ -179,16 +148,15 @@ function PDHG(
     output = init_output(n_epoch)
     to = TimerOutput()
 
-    σ = 0.99 / norm(A)
-    τ = 0.99 / norm(A)
-    θ = 1
+    σ::Float64 = 0.99 / norm(A)
+    τ::Float64 = 0.99 / norm(A)
+    θ::Float64 = 1
 
     λ::Vector{Float64} = x_to_λ(ones(Float64, d))
     z::Vector{Float64} = zeros(Float64, n) # dual variable
     z_bar::Vector{Float64} = zeros(Float64, n)
 
     @inbounds for t = 1: n_epoch
-        # update iterate
         @timeit to "iteration" begin
             λ = max.(λ - τ * transpose(A) * z_bar, zeros(Float64, d)) # prox g
         
@@ -201,7 +169,7 @@ function PDHG(
         end
 
         update_output!(output, t, t, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ), normalized_l2(λ, λ_true))
-        print_output(io, output, t, verbose)
+        print_output(io, output, t, VERBOSE)
     end
 
     print_signal(io, λ)

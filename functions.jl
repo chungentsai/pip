@@ -5,25 +5,19 @@ using ImagePhantoms
 
 
 function true_parameters(w::Int64)
-    image = ImagePhantoms.shepp_logan(w) * 1000
-    λ::Vector{Float64} = reshape(image, w*w)
+    d = w*w
+    #image = ImagePhantoms.shepp_logan(w) * 1000
+    #λ::Vector{Float64} = reshape(image, d)
 
-    #λ = ones(Float64, d) * 1000
-    #λ[1*d÷5 : 1*d÷4] .= 10000
-    #λ[4*d÷9 : 5*d÷9] .= 10000
-    #λ[3*d÷4 : 4*d÷5] .= 10000
+    λ::Vector{Float64} = ones(Float64, d) * 1000
+    λ[1*d÷5 : 1*d÷4] .= 10000
+    λ[4*d÷9 : 5*d÷9] .= 10000
+    λ[3*d÷4 : 4*d÷5] .= 10000
     return λ
 end
 
 
 function sensing_matrix(n::Int64, d::Int64, p::Float64)
-    #n_zero = floor(Int, d * p)
-    #A = ones(Float64, n, d) / (d - n_zero)
-    #for i in 1:n
-    #    idx = sample(1:d, n_zero, replace = false)
-    #    A[i, idx] .= 0
-    #end
-    
     A = zeros(Float64, n, d)
     λminus = -((1-p)/p)^0.5
     λplus = (p/(1-p))^0.5
