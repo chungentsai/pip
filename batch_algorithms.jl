@@ -32,8 +32,8 @@ function EM(n_epoch::Int64, n_rate::Int64)
 end
 
 
-function BPG(n_epoch::Int64, n_rate::Int64)
-    name = "BPG"
+function NoLips(n_epoch::Int64, n_rate::Int64)
+    name = "NoLips"
     println(name * " starts.")
     @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
     output = init_output(n_epoch)

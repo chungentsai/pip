@@ -43,7 +43,7 @@ Kellyf(x) = Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EMD, FW, EM, BPG]
+const batch_algs = [EMD, FW, EM, NoLips]
 const stochastic_algs = [SSB, SLBOMD, SPDHG, LB_SDA, d_sample_LB_SDA]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
