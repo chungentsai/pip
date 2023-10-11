@@ -21,10 +21,10 @@ const to = TimerOutput();
 reset_timer!(to)
 
 # setup
-const w = 2^3      # width
+const w = 256      # width
 const d = w*w      # dimension
-const n = 10000    # number of measurements
-const p = 1/2
+const n = w*w    # number of measurements
+const p = 0.1
 const λ_true = true_parameters(w) # Poisson parameters
 print_signal(io, λ_true)
 const A = sensing_matrix(n, d, p) # sensing matrix
@@ -43,8 +43,8 @@ Kellyf(x) = Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EMD, FW, EM, NoLips]
-const stochastic_algs = [SSB, SLBOMD, SPDHG, LB_SDA, d_sample_LB_SDA]
+const batch_algs = [EMD, NoLips, FW, EM]
+const stochastic_algs = [SPDHG, LB_SDA, d_sample_LB_SDA, SLBOMD, SSB]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
 const N_EPOCH_B = 600

@@ -6,32 +6,36 @@ using ImagePhantoms
 
 function true_parameters(w::Int64)
     d = w*w
-    #image = ImagePhantoms.shepp_logan(w) * 1000
-    #λ::Vector{Float64} = reshape(image, d)
+    image = ImagePhantoms.shepp_logan(w) * 1000
+    λ::Vector{Float64} = reshape(image, d)
 
-    λ::Vector{Float64} = ones(Float64, d) * 1000
-    λ[1*d÷5 : 1*d÷4] .= 10000
-    λ[4*d÷9 : 5*d÷9] .= 10000
-    λ[3*d÷4 : 4*d÷5] .= 10000
+    #λ::Vector{Float64} = ones(Float64, d) * 10000
+    #λ[1*d÷5 : 1*d÷4] .= 10000
+    #λ[4*d÷9 : 5*d÷9] .= 10000
+    #λ[3*d÷4 : 4*d÷5] .= 10000
     return λ
 end
 
 
 function sensing_matrix(n::Int64, d::Int64, p::Float64)
-    A = zeros(Float64, n, d)
-    λminus = -((1-p)/p)^0.5
-    λplus = (p/(1-p))^0.5
-    @inbounds for i in 1:n
-        @inbounds for j in 1:d
-            if rand() <= p
-                A[i, j] = λminus
-            else
-                A[i, j] = λplus
-            end
-        end
-    end
-    A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
-    A = max.(A, zeros(Float64, n, d))
+    #A = ones(Float64, n, d) / n
+
+    A = rand([0.0, 1.0], n, d)
+    A = A ./ sum(A, dims=1)
+
+    #λminus = -((1-p)/p)^0.5
+    #λplus = (p/(1-p))^0.5
+    #@inbounds for i in 1:n
+    #    @inbounds for j in 1:d
+    #        if rand() <= p
+    #            A[i, j] = λminus
+    #        else
+    #            A[i, j] = λplus
+    #        end
+    #    end
+    #end
+    #A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
+    #A = max.(A, zeros(Float64, n, d))
     
     return A
 end
