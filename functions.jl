@@ -20,22 +20,23 @@ end
 function sensing_matrix(n::Int64, d::Int64, p::Float64)
     #A = ones(Float64, n, d) / n
 
-    A = rand([0.0, 1.0], n, d)
-    A = A ./ sum(A, dims=1)
+    #A = rand([0.0, 1.0], n, d)
+    #A = A ./ sum(A, dims=1)
 
-    #λminus = -((1-p)/p)^0.5
-    #λplus = (p/(1-p))^0.5
-    #@inbounds for i in 1:n
-    #    @inbounds for j in 1:d
-    #        if rand() <= p
-    #            A[i, j] = λminus
-    #        else
-    #            A[i, j] = λplus
-    #        end
-    #    end
-    #end
-    #A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
-    #A = max.(A, zeros(Float64, n, d))
+    A = zeros(Float64, n, d)
+    λminus = -((1-p)/p)^0.5
+    λplus = (p/(1-p))^0.5
+    @inbounds for i in 1:n
+        @inbounds for j in 1:d
+            if rand() <= p
+                A[i, j] = λminus
+            else
+                A[i, j] = λplus
+            end
+        end
+    end
+    A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
+    A = max.(A, zeros(Float64, n, d))
     
     return A
 end
@@ -67,7 +68,7 @@ end
 
 
 function ∇f(A::Array{Float64, 2}, y::Array{Int64, 1}, λ::Array{Float64, 1})
-    return vec(- sum(A - y .* A ./ (A * λ), dims=1))
+    return vec(sum(A - y .* A ./ (A * λ), dims=1))
 end
 
 
