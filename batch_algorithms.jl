@@ -14,11 +14,12 @@ function EM(n_epoch::Int64, n_rate::Int64)
 
     x::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x)
+    grad::Vector{Float64} = zeros(Float64, d)
 
     @inbounds for t = 1: n_epoch
         @timeit to "iteration" begin
             grad = ∇Kellyf(x)
-            x = x .* -grad
+            x .= x .* -grad
         end
 
         λ = x_to_λ(x)
@@ -42,11 +43,13 @@ function NoLips(n_epoch::Int64, n_rate::Int64)
     x::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x)
     η::Float64 = 1
+    grad::Vector{Float64} = zeros(Float64, d)
+    x_half::Vector{Float64} = zeros(Float64, d)
 
     @inbounds for t = 1: n_epoch
         @timeit to "iteration" begin
             grad = ∇Kellyf(x)
-            x_half = 1 ./ (1 ./ x + η * grad)
+            x_half .= @. 1 / (1 / x + η * grad)
             x = log_barrier_projection(x_half, 1e-5)
         end
 
@@ -71,6 +74,7 @@ function FW(n_epoch::Int64, n_rate::Int64)
     x::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x)
     pmin::Float64 = minimum(P[P.>0])
+    grad::Vector{Float64} = zeros(Float64, d)
     
     @inbounds for t = 1: n_epoch
         @timeit to "iteration" begin
@@ -108,10 +112,12 @@ function EMD(n_epoch::Int64, n_rate::Int64)
     to = TimerOutput()
 
     x::Vector{Float64} = ones(Float64, d) / d
+    xα::Vector{Float64} = zeros(Float64, d)
     λ::Vector{Float64} = x_to_λ(x)
     α0::Float64 = 10
     r::Float64 = 0.5
     τ::Float64 = 0.8
+    grad::Vector{Float64} = zeros(Float64, d)
 
     @inbounds for t = 1: n_epoch
         @timeit to "iteration" begin
@@ -119,11 +125,11 @@ function EMD(n_epoch::Int64, n_rate::Int64)
             
             # Armijo line search
             α = α0
-            xα = x .* exp.(-α * grad)
+            xα .= @. x * exp(-α * grad)
             xα /= sum(xα)
             while τ*dot(grad, xα-x) + Kellyf(x) < Kellyf(xα)
                 α *= r
-                xα = x .* exp.(-α * grad)
+                xα .= @. x * exp(-α * grad)
                 xα /= sum(xα)
             end
             x = xα

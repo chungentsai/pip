@@ -21,35 +21,35 @@ const to = TimerOutput();
 reset_timer!(to)
 
 # setup
-const w = 256      # width
-const d = w*w      # dimension
-const n = w*w    # number of measurements
-const p = 0.1
-const λ_true = true_parameters(w) # Poisson parameters
+const w::Int64 = 32      # width
+const d::Int64 = w*w      # dimension
+const n::Int64 = w*w    # number of measurements
+const p::Float64 = 0.05
+const λ_true::Vector{Float64} = true_parameters(w) # Poisson parameters
 print_signal(io, λ_true)
-const A = sensing_matrix(n, d, p) # sensing matrix
-const y = generate_observations(A, λ_true)
+const A::Matrix{Float64} = sensing_matrix(n, d, p) # sensing matrix
+const y::Vector{Int64} = generate_observations(A, λ_true)
 f(λ) = f(A, y, λ)
 ∇f(λ) = ∇f(A, y, λ)
 
 # transform to kelly form
-const A_csum = vec(sum(A,dims=1))
-const Y = sum(y)
-const B = Y * A ./ transpose(A_csum)
-const P = y / Y
+const A_csum::Vector{Float64} = vec(sum(A,dims=1))
+const Y::Int64 = sum(y)
+const B::Matrix{Float64} = Y * A ./ transpose(A_csum)
+const P::Vector{Float64} = y / Y
 Kellyf(x) = Kellyf(B, P, x)
 ∇Kellyf(x) = ∇Kellyf(B, P, x)
 ∇2Kellyf(x) = ∇2Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EMD, NoLips, FW, EM]
-const stochastic_algs = [SPDHG, LB_SDA, d_sample_LB_SDA, SLBOMD, SSB]
+const batch_algs = [EM, EMD, NoLips, FW]
+const stochastic_algs = [LB_SDA, SLBOMD, SSB, SPDHG]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
 const N_EPOCH_B = 600
 const N_RATE_B = 1
-const VERBOSE = false
+const VERBOSE = true
 run_alg(alg, n_epoch, n_rate) = alg(n_epoch, n_rate)
 
 try

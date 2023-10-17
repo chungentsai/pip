@@ -17,6 +17,7 @@ function SSB(n_epoch::Int64, n_rate::Int64)
     x::Vector{Float64} = ones(Float64, d) / d
     x_bar::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x_bar)
+    grad::Vector{Float64} = zeros(Float64, d)
 
     n_iter::Int64 = n_epoch * n
     period::Int64 = n ÷ n_rate
@@ -24,14 +25,13 @@ function SSB(n_epoch::Int64, n_rate::Int64)
         idx = sample(1:n, Weights(P), n_iter)
         η::Float64 = sqrt( log( d ) / n_iter / d )
         η = η / ( 1.0 + η )
-        y = ( 1.0 - η ) * ones(Float64, d)
     end
  
     @inbounds for iter = 1:n_iter
         @timeit to "iteration" begin
-            grad = - view(B, idx[iter], :) / dot(view(B, idx[iter], :), x)
-            x = ( 1.0 - η ) * x -  η * x .* grad
-            x_bar = (iter * x_bar + x) / (iter + 1.0)
+            grad = -view(B, idx[iter], :) / dot(view(B, idx[iter], :), x)
+            x .= @. ( 1.0 - η ) * x - η * x * grad
+            x_bar .= @. (x_bar * iter + x) / (iter + 1.0)
         end
 
         if mod(iter, period) == 0
@@ -56,8 +56,10 @@ function SLBOMD(n_epoch::Int64, n_rate::Int64)
     to = TimerOutput()
 
     x::Vector{Float64} = ones(Float64, d) / d
+    x_half::Vector{Float64} = ones(Float64, d) / d
     x_bar::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x_bar)
+    grad::Vector{Float64} = zeros(Float64, d)
 
     n_iter::Int64 = n_epoch * n
     period::Int64 = n ÷ n_rate
@@ -70,9 +72,9 @@ function SLBOMD(n_epoch::Int64, n_rate::Int64)
     @inbounds for iter = 1:n_iter
         @timeit to "iteration" begin
             grad = - view(B, idx[iter], :) / dot(view(B, idx[iter], :), x)
-            x_half = 1 ./ (1 ./ x + η * grad)
+            x_half .= @. 1 / (1 / x + η * grad)
             x = log_barrier_projection(x_half, 1e-5)
-            x_bar = (iter * x_bar + x) / (iter + 1.0)
+            x_bar .= @. (x_bar * iter + x) / (iter + 1.0)
         end
 
         if mod(iter, period) == 0
@@ -99,6 +101,7 @@ function LB_SDA(n_epoch::Int64, n_rate::Int64)
     x::Vector{Float64} = ones(Float64, d) / d
     x_bar::Vector{Float64} = ones(Float64, d) / d
     λ::Vector{Float64} = x_to_λ(x_bar)
+    grad::Vector{Float64} = zeros(Float64, d)
     ∑grad::Vector{Float64} = zeros(Float64, d)
     ∑dual_norm2::Float64 = 0.0
     
@@ -111,15 +114,14 @@ function LB_SDA(n_epoch::Int64, n_rate::Int64)
  
     @inbounds for iter = 1:n_iter
         @timeit to "iteration" begin
-
-            grad = - view(B, idx[iter], :) / dot(view(B, idx[iter], :), x)
+            grad .= -view(B, idx[iter], :) ./ dot(view(B, idx[iter], :), x)
             ∑grad += grad
-            ∑dual_norm2 += dual_norm2(x, grad + α(x, grad) * ones(Float64, d))
+            grad .+= α(x, grad)
+            ∑dual_norm2 += dual_norm2(x, grad)
             η = sqrt(d) / sqrt(4 * d + 1 + ∑dual_norm2)
             
             x = log_barrier_projection(1 ./ (η * ∑grad), 1e-5)
-
-            x_bar = (iter * x_bar + x) / (iter + 1.0)
+            x_bar .= @. (x_bar * iter + x) / (iter + 1.0)
         end
 
         if mod(iter, period) == 0
@@ -163,11 +165,11 @@ function d_sample_LB_SDA(n_epoch::Int64, n_rate::Int64)
             grad = vec( sum(- view(B, idx[:, iter], :) ./ (view(B, idx[:,iter], :) * x), dims = 1) / batch_size )
             ∑grad += grad
 
-            ∑dual_norm2 += dual_norm2(x, grad + α(x, grad) * ones(Float64, d))
+            ∑dual_norm2 += dual_norm2(x, grad .+ α(x, grad))
             η = sqrt(d) / sqrt(4 * d + 1 + ∑dual_norm2)
             
             x = log_barrier_projection(1 ./ (η * ∑grad), 1e-5)
-            x_bar = (iter * x_bar + x) / (iter + 1.0)
+            x_bar .= @. (x_bar * iter + x) / (iter + 1.0)
         end
 
         if mod(iter, period) == 0

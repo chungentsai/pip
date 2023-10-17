@@ -20,7 +20,7 @@ end
 function sensing_matrix(n::Int64, d::Int64, p::Float64)
     #A = ones(Float64, n, d) / n
 
-    A = rand([0.0, 1.0], n, d)
+    A = sample([0.0, 1.0], Weights([1-p, p]), (n, d))
     A = A ./ sum(A, dims=1)
 
     #λminus = -((1-p)/p)^0.5
@@ -55,7 +55,7 @@ end
 
 
 function x_to_λ(A_csum::Array{Float64, 1}, Y::Int64, x::Array{Float64, 1})
-    λ = Y * x ./ A_csum
+    λ::Vector{Float64} = Y .* x ./ A_csum
     return λ
 end
 
@@ -100,21 +100,22 @@ function log_barrier_projection(
     # compute argmin_{x∈Δ} D_h(x,u) where h(x)=∑_{i=1}^d -log(x_i)
     # minimize ϕ(θ) = θ - ∑_i log(θ + u_i^{-1})
 
-    θ::Float64 = 1 - minimum(1 ./ u)
-    a::Array{Float64, 1} = 1 ./ ((1 ./ u) .+ θ)
+    uinv::Vector{Float64} = 1 ./ u
+    θ::Float64 = 1 - minimum(uinv)
+    a::Vector{Float64} = @. 1 / (uinv + θ)
     ∇::Float64 = 1 - sum(a)
     ∇2::Float64 = a ⋅ a
     λt::Float64 = abs(∇) / sqrt(∇2)
 
     while λt > ε
-        a = 1 ./ ((1 ./ u) .+ θ)
+        a .= @. 1 / (uinv + θ)
         ∇ = 1 - norm(a, 1)
         ∇2 =  a ⋅ a
-        θ = θ - ∇ / ∇2
+        θ -= ∇ / ∇2
         λt = abs(∇) / sqrt(∇2)
     end
 
-    return (1 ./ ((1 ./ u) .+ θ))
+    return a
 end
 
 
