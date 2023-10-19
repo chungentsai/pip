@@ -87,17 +87,17 @@ function myPlot(filename, N_EPOCH = 200)
     savefig(path * "/time-distance.png")
 
 
-    figure(5)
-    plot(1:d, λ_true, linewidth=2)
-    hold
-    for alg in algs
-        plot(1:d, results[alg]["signal"], linewidth=2)
-        hold
-    end
-    legend(vcat(["true"], algs))
-    xlabel("Index")
-    ylabel("Intensity")
-    grid("on")
-    savefig(path * "/signal.png")
+    #figure(5)
+    #plot(1:d, λ_true, linewidth=2)
+    #hold
+    #for alg in algs
+    #    plot(1:d, results[alg]["signal"], linewidth=2)
+    #    hold
+    #end
+    #legend(vcat(["true"], algs))
+    #xlabel("Index")
+    #ylabel("Intensity")
+    #grid("on")
+    #savefig(path * "/signal.png")
 
 end

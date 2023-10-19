@@ -126,11 +126,12 @@ function EMD(n_epoch::Int64, n_rate::Int64)
             # Armijo line search
             α = α0
             xα .= @. x * exp(-α * grad)
-            xα /= sum(xα)
-            while τ*dot(grad, xα-x) + Kellyf(x) < Kellyf(xα)
+            xα ./= sum(xα)
+            fval = Kellyf(x)
+            while τ*dot(grad, xα-x) + fval < Kellyf(xα)
                 α *= r
                 xα .= @. x * exp(-α * grad)
-                xα /= sum(xα)
+                xα ./= sum(xα)
             end
             x = xα
         end

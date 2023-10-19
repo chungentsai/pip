@@ -119,16 +119,16 @@ function log_barrier_projection(
 end
 
 
-function α(x::Array{Float64, 1}, v::Array{Float64, 1})
+function α(x::Vector{Float64}, v::Vector{Float64})
     return - sum(x.^2 .* v) / sum(x.^2)
 end
 
 
-function dual_norm2(x::Array{Float64, 1}, v::Array{Float64, 1})
+function dual_norm2(x::Vector{Float64}, v::Vector{Float64})
     return sum((x.*v).^2)
 end
 
 
-function normalized_l2(λ::Array{Float64, 1}, λ_true::Array{Float64, 1})
+function normalized_l2(λ::Vector{Float64}, λ_true::Vector{Float64})
     return norm(λ - λ_true) / norm(λ_true)
 end
