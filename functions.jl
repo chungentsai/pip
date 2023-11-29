@@ -18,24 +18,24 @@ end
 
 
 function sensing_matrix(n::Int64, d::Int64, p::Float64)
-    #A = ones(Float64, n, d) / n
+    A = zeros(Float64, n, d)
 
-    A = sample([0.0, 1.0], Weights([1-p, p]), (n, d))
-    A = A ./ sum(A, dims=1)
+    #A = sample([0.0, 1.0], Weights([1-p, p]), (n, d))
+    #A = A ./ sum(A, dims=1)
 
-    #λminus = -((1-p)/p)^0.5
-    #λplus = (p/(1-p))^0.5
-    #@inbounds for i in 1:n
-    #    @inbounds for j in 1:d
-    #        if rand() <= p
-    #            A[i, j] = λminus
-    #        else
-    #            A[i, j] = λplus
-    #        end
-    #    end
-    #end
-    #A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
-    #A = max.(A, zeros(Float64, n, d))
+    λminus = -((1-p)/p)^0.5
+    λplus = (p/(1-p))^0.5
+    @inbounds for i in 1:n
+        @inbounds for j in 1:d
+            if rand() <= p
+                A[i, j] = λminus
+            else
+                A[i, j] = λplus
+            end
+        end
+    end
+    A = ((p*(1-p))^0.5 * A + (1-p) * ones(Float64, n, d)) / n
+    A = max.(A, zeros(Float64, n, d))
     
     return A
 end

@@ -21,10 +21,10 @@ const to = TimerOutput();
 reset_timer!(to)
 
 # setup
-const w::Int64 = 128      # width
+const w::Int64 = 16       # width
 const d::Int64 = w*w      # dimension
-const n::Int64 = d        # number of measurements
-const p::Float64 = 0.01
+const n::Int64 = 1000000        # number of measurements
+const p::Float64 = 0.5
 const λ_true::Vector{Float64} = true_parameters(w) # Poisson parameters
 print_signal(io, λ_true)
 const A::Matrix{Float64} = sensing_matrix(n, d, p) # sensing matrix
@@ -43,13 +43,13 @@ Kellyf(x) = Kellyf(B, P, x)
 x_to_λ(x) = x_to_λ(A_csum, Y, x)
 
 # algorithms
-const batch_algs = [EMD, NoLips, EM, FW]
+const batch_algs = [EMD, EM, NoLips, FW]
 const stochastic_algs = [LB_SDA, d_sample_LB_SDA, SSB, SLBOMD, SPDHG]
 const N_EPOCH_S = 200
 const N_RATE_S = 1
 const N_EPOCH_B = 600
 const N_RATE_B = 1
-const VERBOSE = true
+const VERBOSE = false
 run_alg(alg, n_epoch, n_rate) = alg(n_epoch, n_rate)
 
 try
