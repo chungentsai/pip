@@ -1,4 +1,4 @@
-This repository contains the source code of the poisson inverse problem experiment in the paper "Fast minimization of expected logarithmic loss via stochastic dual averaging" accepted by AISTATS 2024.
+This repository contains the source code of the Poisson inverse problem experiment in the paper "Fast minimization of expected logarithmic loss via stochastic dual averaging" accepted by AISTATS 2024.
 
 # How to run
 - Tested on [Julia](https://julialang.org) Version 1.9.2
