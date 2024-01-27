@@ -90,6 +90,51 @@ function SLBOMD(n_epoch::Int64, n_rate::Int64)
 end
 
 
+function relSGD(n_epoch::Int64, n_rate::Int64)
+    name = "relSGD"
+    println(name * " starts.")
+    @printf(io, "%s\n%d\n%d\n", name, n_epoch, n_rate)
+    len_output = n_epoch * n_rate
+    output = init_output(len_output)
+    to = TimerOutput()
+
+    λ::Vector{Float64} = x_to_λ(ones(Float64, d) / d)
+    λ_bar::Vector{Float64} = x_to_λ(ones(Float64, d) / d)
+    grad::Vector{Float64} = zeros(Float64, d)
+
+    n_iter::Int64 = n_epoch * n
+    period::Int64 = n ÷ n_rate
+    @timeit to "iteration" begin
+        idx = rand(1:n, n_iter)
+
+        # this learning rate is not explicitly stated in their paper
+        # since their Corollary 4.6 has lots of typos.
+        # I apply their theorem and use the best learning rates I found
+        L = sqrt(2 * n_iter) / sqrt(d) / 5
+    end
+ 
+    @inbounds for iter = 1:n_iter
+        @timeit to "iteration" begin
+
+            a = view(A, idx[iter], :)
+            grad = a - y[idx[iter]] * a / dot(a, λ)
+
+            λ .= @. 1 / (1 / λ + grad / L)
+            λ_bar .= @. (λ_bar * iter + λ) / (iter + 1.0)
+        end
+
+        if mod(iter, period) == 0
+            update_output!(output, iter÷period, iter/n, TimerOutputs.time(to["iteration"]) * 1e-9, f(λ_bar), normalized_l2(λ_bar, λ_true))
+            print_output(io, output, iter÷period, VERBOSE)
+        end
+    end
+
+    print_signal(io, λ_bar)
+
+    return output 
+end
+
+
 function LB_SDA(n_epoch::Int64, n_rate::Int64)
     name = "1-sample LB-SDA"
     println(name * " starts.")

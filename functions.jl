@@ -20,9 +20,10 @@ end
 function sensing_matrix(n::Int64, d::Int64, p::Float64)
     A = zeros(Float64, n, d)
 
-    #A = sample([0.0, 1.0], Weights([1-p, p]), (n, d))
+    #A = rand([0.0, 1.0], n, d)
     #A = A ./ sum(A, dims=1)
 
+    A = zeros(Float64, n, d)
     λminus = -((1-p)/p)^0.5
     λplus = (p/(1-p))^0.5
     @inbounds for i in 1:n
@@ -67,7 +68,7 @@ end
 
 
 function ∇f(A::Array{Float64, 2}, y::Array{Int64, 1}, λ::Array{Float64, 1})
-    return vec(- sum(A - y .* A ./ (A * λ), dims=1))
+    return vec(sum(A - y .* A ./ (A * λ), dims=1))
 end
 
 
